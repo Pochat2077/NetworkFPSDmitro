@@ -8,6 +8,7 @@ public class UiManager : MonoBehaviour
     public static UiManager Instance;
     [SerializeField]
     private GameObject[] panels;
+    [SerializeField]
     private TMP_Text ConnectedPlayersText;
     private void Awake()
     {
@@ -26,7 +27,7 @@ public class UiManager : MonoBehaviour
     {
         foreach (GameObject panel in panels)
         {
-            if(panel.name == name)
+            if(panel.name == panelName)
             {
                 panel.SetActive(true);
             }
