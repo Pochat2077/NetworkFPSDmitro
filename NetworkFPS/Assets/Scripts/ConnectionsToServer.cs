@@ -23,11 +23,19 @@ public class ConnectionsToServer : MonoBehaviourPunCallbacks
   private Transform playerListT;
   [SerializeField]
   private GameObject StartGameButton;
+  [SerializeField]
+  private GameObject mapSelector;
+  [SerializeField]
+  private string[] allMapNames;
+  [SerializeField]
+  private TMP_Text mapNameText;
+  private int maxMapIndex, currentMapIndex = 1;
    
     private void Awake()
     {
      Instance = this;
      PhotonNetwork.ConnectUsingSettings();
+     maxMapIndex = SceneManager.sceneCountInBuildSettings;
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
@@ -56,20 +64,17 @@ public class ConnectionsToServer : MonoBehaviourPunCallbacks
     }
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
-        if(PhotonNetwork.IsMasterClient)
-        {
-          StartGameButton.SetActive(true);
-        }
+      mapSelector.SetActive(PhotonNetwork.IsMasterClient);
+      StartGameButton.SetActive(PhotonNetwork.IsMasterClient);
     }
     public override void OnJoinedRoom()
     {
       UiManager.Instance.OpenPanel("GameRoomPanel");
+      mapSelector.SetActive(PhotonNetwork.IsMasterClient);
+      StartGameButton.SetActive(PhotonNetwork.IsMasterClient);
+     
+      
       roomName.text = PhotonNetwork.CurrentRoom.Name;
-
-      if(!PhotonNetwork.IsMasterClient)
-      {
-        StartGameButton.SetActive(false);
-      }
 
       Player[] players = PhotonNetwork.PlayerList;
       foreach(Transform player in playerListT)
@@ -106,9 +111,21 @@ public class ConnectionsToServer : MonoBehaviourPunCallbacks
     {
       PhotonNetwork.JoinRandomRoom();
     }
-  public void StartLevel(int sceneIndex)
+  public void StartLevel()
   {
-    SceneManager.LoadScene(sceneIndex);
+    SceneManager.LoadScene(currentMapIndex);
+  }
+  public void NextMap()
+  {
+    currentMapIndex++;
+    if(currentMapIndex >= maxMapIndex) currentMapIndex = 1;
+    mapNameText.text = allMapNames[currentMapIndex];
+  }
+  public void PrevMap()
+  {
+    currentMapIndex --;
+    if(currentMapIndex < 1) currentMapIndex = maxMapIndex;
+    mapNameText.text = allMapNames[currentMapIndex];
   }
 
 }
